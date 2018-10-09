@@ -49,23 +49,37 @@ function dopow(h, target, callback, noncefn, smallest, i) {
   });  
 }
 
+function domeasure(iterations, callback, iteration, start) {
+    if (iteration) {
+      scrypt("x", "y" + Math.random() + "-iteration", config, function(key) {
+        domeasure(iterations, callback, iteration - 1, start);
+      });
+    } else {
+      var hashrate = 1000.0 * iterations / ((new Date().getTime()) - start);
+      callback(hashrate);
+    }
+}
+
 /**
  * Measure how many hashes per second the current device is capable of.
  */
-function measure(iterations, callback, iteration, start) {
-  var start = start || new Date().getTime();
-  if (typeof(iterations) == "function") {
-    callback = iterations;
-    iterations = 100;
-  }
-  var iteration = typeof(iteration) == "undefined" ? iterations : iteration;
-  if (iteration) {
-    scrypt("x", "y" + Math.random() + "-iteration", config, function(key) {
-      measure(iterations, callback, iteration-1, start);
-    });
-  } else {
-    callback(1000.0 * iterations / ((new Date().getTime()) - start));
-  }
+function measure(iterations, callback) {
+  return new Promise(function(resolve, reject) {
+    var start = start || new Date().getTime();
+    if (typeof(iterations) == "function") {
+      callback = iterations;
+      iterations = 100;
+    } else {
+      iterations = iterations || 100;
+    }
+    var iteration = iterations;
+    domeasure(iterations, function(hashrate) {
+      if (callback) {
+        callback(hashrate);
+      }
+      resolve(hashrate);
+    }, iteration, start);
+  });
 }
 
 function pow(h, target, callback, noncefn) {
