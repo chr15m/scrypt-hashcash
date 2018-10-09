@@ -34,21 +34,6 @@ function target(difficulty) {
   return target;
 }
 
-function dopow(h, target, callback, noncefn, smallest, i) {
-  scrypt(h, noncefn(i), config, function(key) {
-      smallest = toHex(key) < toHex(smallest) ? key : smallest;
-      if (toHex(smallest) <= toHex(target)) {
-        callback(smallest);
-      } else {
-        // avoid maximum call stack exceeded
-        // by going async
-        setTimeout(function() {
-          dopow(h, target, callback, noncefn, smallest, i + 1);
-        });
-      }
-  });  
-}
-
 function domeasure(iterations, callback, iteration, start) {
     if (iteration) {
       scrypt("x", "y" + Math.random() + "-iteration", config, function(key) {
@@ -80,6 +65,21 @@ function measure(iterations, callback) {
       resolve(hashrate);
     }, iteration, start);
   });
+}
+
+function dopow(h, target, callback, noncefn, smallest, i) {
+  scrypt(h, noncefn(i), config, function(key) {
+      smallest = toHex(key) < toHex(smallest) ? key : smallest;
+      if (toHex(smallest) <= toHex(target)) {
+        callback(smallest);
+      } else {
+        // avoid maximum call stack exceeded
+        // by going async
+        setTimeout(function() {
+          dopow(h, target, callback, noncefn, smallest, i + 1);
+        });
+      }
+  });  
 }
 
 function pow(h, target, callback, noncefn) {
