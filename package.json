@@ -1,0 +1,10 @@
+{
+  "name": "scrypt-hashcash",
+  "version": "0.0.1",
+  "dependencies": {
+    "scrypt-async": "^2.0.1"
+  }
+  "devDependencies": {
+    "tape": "^4.9.1"
+  }
+}
