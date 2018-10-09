@@ -2,14 +2,14 @@ var scrypt = require("scrypt-async");
 
 /**
  * s-crypt configuration parameters.
- * Defaults to using 2mb of memory per hash.
- * @param size sets the byte-size of to PoW hashes & target (default 8 bytes).
+ * Defaults to using 2mb of memory per hash with 8 byte size.
  */
 var config = {
-  size: 8,
+  dkLen: 8,
   N: 2048,
   r: 8,
-  p: 1
+  p: 1,
+  encoding: 'binary',
 }
 
 /**
@@ -25,7 +25,7 @@ function difficulty(hashes_per_time, average_time) {
 }
 
 function target(difficulty) {
-  var target = new Uint8Array(config.size).fill(255);
+  var target = new Uint8Array(config.dkLen).fill(255);
   for (var x=0; x<difficulty; x++) {
     var position = Math.floor(x / 8);
     var index = x % 8 + 1;
@@ -35,13 +35,7 @@ function target(difficulty) {
 }
 
 function dopow(h, target, callback, noncefn, smallest, i) {
-  scrypt(h, noncefn(i), {
-      N: config.N,
-      r: config.r,
-      p: config.p,
-      dkLen: config.size,
-      encoding: 'binary'
-  }, function(key) {
+  scrypt(h, noncefn(i), config, function(key) {
       smallest = toHex(key) < toHex(smallest) ? key : smallest;
       if (toHex(smallest) <= toHex(target)) {
         callback(smallest);
@@ -58,19 +52,16 @@ function dopow(h, target, callback, noncefn, smallest, i) {
 /**
  * Measure how many hashes per second the current device is capable of.
  */
-function measure(callback, iterations, iteration, start) {
+function measure(iterations, callback, iteration, start) {
   var start = start || new Date().getTime();
-  var iterations = iterations || 100;
+  if (typeof(iterations) == "function") {
+    callback = iterations;
+    iterations = 100;
+  }
   var iteration = typeof(iteration) == "undefined" ? iterations : iteration;
   if (iteration) {
-    scrypt("x", "y" + Math.random() + "-iteration", {
-      N: config.N,
-      r: config.r,
-      p: config.p,
-      dkLen: config.size,
-      encoding: 'binary'
-    }, function(key) {
-      measure(callback, iterations, iteration-1, start);
+    scrypt("x", "y" + Math.random() + "-iteration", config, function(key) {
+      measure(iterations, callback, iteration-1, start);
     });
   } else {
     callback(1000.0 * iterations / ((new Date().getTime()) - start));
@@ -81,7 +72,7 @@ function pow(h, target, callback, noncefn) {
   if (typeof(target) == "string") {
     target = fromHex(target);
   }
-  var smallest = new Uint8Array(config.size).fill(255);
+  var smallest = new Uint8Array(config.dkLen).fill(255);
   var noncefn = noncefn || function(i) { return Math.random() + "-" + i + "-iteration"; };
   dopow(h, target, callback, noncefn, smallest, 0);
 }
