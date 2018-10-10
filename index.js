@@ -85,9 +85,6 @@ function dopow(h, target, callback, noncefn, smallest, i) {
 }
 
 function pow(h, target, noncefn, callback) {
-  if (typeof(target) == "string") {
-    target = fromHex(target);
-  }
   var smallest = new Uint8Array(config.dkLen).fill(255);
   var noncefn = noncefn || function(i) { return randomBytes(8); };
   return new Promise(function(resolve, reject) {
