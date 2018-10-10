@@ -1,6 +1,32 @@
 var s = require("./index.js");
 var test = require("tape");
 
+var deterministicnoncefn = function(i) { return i.toString(); };
+var material = "0:030626:adam@cypherspace.org";
+
+var difficulty_vectors = [
+  [ 255, 255, 255, 255, 255, 255, 255, 255 ],
+  [ 127, 255, 255, 255, 255, 255, 255, 255 ],
+  [ 63, 255, 255, 255, 255, 255, 255, 255 ],
+  [ 31, 255, 255, 255, 255, 255, 255, 255 ],
+  [ 15, 255, 255, 255, 255, 255, 255, 255 ],
+  [ 7, 255, 255, 255, 255, 255, 255, 255 ],
+  [ 3, 255, 255, 255, 255, 255, 255, 255 ],
+  [ 1, 255, 255, 255, 255, 255, 255, 255 ],
+  [ 0, 255, 255, 255, 255, 255, 255, 255 ],
+  [ 0, 127, 255, 255, 255, 255, 255, 255 ],
+  [ 0, 63, 255, 255, 255, 255, 255, 255 ],
+  [ 0, 31, 255, 255, 255, 255, 255, 255 ],
+  [ 0, 15, 255, 255, 255, 255, 255, 255 ],
+  [ 0, 7, 255, 255, 255, 255, 255, 255 ],
+  [ 0, 3, 255, 255, 255, 255, 255, 255 ],
+  [ 0, 1, 255, 255, 255, 255, 255, 255 ],
+  [ 0, 0, 255, 255, 255, 255, 255, 255 ],
+  [ 0, 0, 127, 255, 255, 255, 255, 255 ],
+  [ 0, 0, 63, 255, 255, 255, 255, 255 ],
+  [ 0, 0, 31, 255, 255, 255, 255, 255 ],
+];
+
 test("measurement test", function (t) {
   t.plan(2);
 
@@ -45,42 +71,17 @@ test("compute difficulty", function(t) {
 });
 
 test("check target vector", function(t) {
-  var vectors = [
-    [ 255, 255, 255, 255, 255, 255, 255, 255 ],
-    [ 127, 255, 255, 255, 255, 255, 255, 255 ],
-    [ 63, 255, 255, 255, 255, 255, 255, 255 ],
-    [ 31, 255, 255, 255, 255, 255, 255, 255 ],
-    [ 15, 255, 255, 255, 255, 255, 255, 255 ],
-    [ 7, 255, 255, 255, 255, 255, 255, 255 ],
-    [ 3, 255, 255, 255, 255, 255, 255, 255 ],
-    [ 1, 255, 255, 255, 255, 255, 255, 255 ],
-    [ 0, 255, 255, 255, 255, 255, 255, 255 ],
-    [ 0, 127, 255, 255, 255, 255, 255, 255 ],
-    [ 0, 63, 255, 255, 255, 255, 255, 255 ],
-    [ 0, 31, 255, 255, 255, 255, 255, 255 ],
-    [ 0, 15, 255, 255, 255, 255, 255, 255 ],
-    [ 0, 7, 255, 255, 255, 255, 255, 255 ],
-    [ 0, 3, 255, 255, 255, 255, 255, 255 ],
-    [ 0, 1, 255, 255, 255, 255, 255, 255 ],
-    [ 0, 0, 255, 255, 255, 255, 255, 255 ],
-    [ 0, 0, 127, 255, 255, 255, 255, 255 ],
-    [ 0, 0, 63, 255, 255, 255, 255, 255 ],
-    [ 0, 0, 31, 255, 255, 255, 255, 255 ],
-  ];
-  
-  t.plan(vectors.length);
+  t.plan(difficulty_vectors.length);
 
-  for (var i=0; i<vectors.length; i++) {
-    t.deepEquals(Array.from(s.target(i)), vectors[i], "target vector " + i + " matches");
+  for (var i=0; i<difficulty_vectors.length; i++) {
+    t.deepEquals(Array.from(s.target(i)), difficulty_vectors[i], "target vector " + i + " matches");
   }
 });
-
-var deterministicnoncefn = function(i) { return i.toString(); };
 
 test("basic pow with callback & deterministsic noncefn", function(t) {
   t.plan(3);
 
-  s.pow("0:030626:adam@cypherspace.org", s.target(4), deterministicnoncefn, function(hash, nonce, i) {
+  s.pow(material, s.target(4), deterministicnoncefn, function(hash, nonce, i) {
     t.deepEquals(hash, [ 15, 200, 215, 223, 6, 50, 198, 48 ], "found expected hash " + s.toHex(hash));
     t.equals(i, 5, "found after expected iterations");
     t.equals(nonce, "5", "found expected nonce");
@@ -90,7 +91,7 @@ test("basic pow with callback & deterministsic noncefn", function(t) {
 test("basic pow with promise API & deterministic noncefn", function(t) {
   t.plan(3);
 
-  s.pow("0:030626:adam@cypherspace.org", s.target(4), deterministicnoncefn).then(function(found) {
+  s.pow(material, s.target(4), deterministicnoncefn).then(function(found) {
     t.deepEquals(found.hash, [ 15, 200, 215, 223, 6, 50, 198, 48 ], "found expected hash " + s.toHex(found.hash));
     t.equals(found.iterations, 5, "found after expected iterations");
     t.equals(found.nonce, "5", "found expected nonce");
@@ -100,7 +101,7 @@ test("basic pow with promise API & deterministic noncefn", function(t) {
 test("default noncefn test", function(t) {
   t.plan(6);
 
-  s.pow("0:030626:adam@cypherspace.org", s.target(4)).then(function(found) {
+  s.pow(material, s.target(4)).then(function(found) {
     t.true(found.iterations > 0, "check iterations performed");
     t.equals(found.nonce.length, 8, "check nonce length");
     t.equals(found.hash.length, 8, "check hash length");
@@ -110,4 +111,18 @@ test("default noncefn test", function(t) {
   });
 });
 
-// TODO: test verification
+test("verify pow", function(t) {
+  t.plan(2);
+
+  var target = s.target(4);
+
+  s.pow(material, target, deterministicnoncefn).then(function(found) {
+    s.verify(material, found.nonce, target).then(function(v) {
+      t.true(v, "verification passed");
+    });
+
+    s.verify(material, "1", target).then(function(v) {
+      t.false(v, "verification known bad nonce fails");
+    });
+  });
+});
