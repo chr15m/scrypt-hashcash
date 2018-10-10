@@ -89,13 +89,16 @@ function pow(h, target, noncefn, callback) {
   }
   var smallest = new Uint8Array(config.dkLen).fill(255);
   var noncefn = noncefn || function(i) { return Math.random() + "-" + i + "-iteration"; };
-  return Promise(function(resolve, reject) {
-    dopow(h, target, function(hash) {
+  return new Promise(function(resolve, reject) {
+    dopow(h, target, function(hash, nonce, i) {
       if (callback) {
-        callback(hash);
+        callback(hash, nonce, i);
       }
-      resolve(hash);
+      resolve({"hash": hash, "nonce": nonce, "iterations": i});
     }, noncefn, smallest, 0);
+  });
+}
+
   });
 }
 
