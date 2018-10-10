@@ -1,4 +1,5 @@
 var scrypt = require("scrypt-async");
+var randomBytes = require("randombytes-shim");
 
 /**
  * s-crypt configuration parameters.
@@ -88,7 +89,7 @@ function pow(h, target, noncefn, callback) {
     target = fromHex(target);
   }
   var smallest = new Uint8Array(config.dkLen).fill(255);
-  var noncefn = noncefn || function(i) { return Math.random() + "-" + i + "-iteration"; };
+  var noncefn = noncefn || function(i) { return randomBytes(8); };
   return new Promise(function(resolve, reject) {
     dopow(h, target, function(hash, nonce, i) {
       if (callback) {

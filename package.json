@@ -2,6 +2,7 @@
   "name": "scrypt-hashcash",
   "version": "0.0.1",
   "dependencies": {
+    "randombytes-shim": "0.0.3",
     "scrypt-async": "^2.0.1"
   },
   "devDependencies": {
