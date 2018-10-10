@@ -82,13 +82,20 @@ function dopow(h, target, callback, noncefn, smallest, i) {
   });  
 }
 
-function pow(h, target, callback, noncefn) {
+function pow(h, target, noncefn, callback) {
   if (typeof(target) == "string") {
     target = fromHex(target);
   }
   var smallest = new Uint8Array(config.dkLen).fill(255);
   var noncefn = noncefn || function(i) { return Math.random() + "-" + i + "-iteration"; };
-  dopow(h, target, callback, noncefn, smallest, 0);
+  return Promise(function(resolve, reject) {
+    dopow(h, target, function(hash) {
+      if (callback) {
+        callback(hash);
+      }
+      resolve(hash);
+    }, noncefn, smallest, 0);
+  });
 }
 
 // https://stackoverflow.com/a/39225475/2131094
