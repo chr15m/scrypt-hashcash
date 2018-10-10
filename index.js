@@ -1,10 +1,6 @@
 var scrypt = require("scrypt-async");
 var randomBytes = require("randombytes-shim");
 
-/**
- * s-crypt configuration parameters.
- * Defaults to using 2mb of memory per hash with 8 byte size.
- */
 var config = {
   dkLen: 8,
   N: 2048,
@@ -14,17 +10,15 @@ var config = {
 }
 
 /**
- * Calculates the number of bits of difficulty required to consume an
- * average of `average_time` CPU given a hash rate of `hashes_per_time`.
- * Time can be in any units (e.g. seconds).
- * @param hashes_per_time the hash rate of the current machine (as measured by `measure`).
- * @param average_time the average time you want the machine to hash for.
- * @returns the number of bits of difficulty required.
+ * Compute the number of bits of difficulty to aim for for a given average time of PoW.
  */
 function difficulty(hashes_per_time, average_time) {
   return Math.max(0, Math.round(Math.log2(hashes_per_time * average_time) - 0.5)) || 0;
 }
 
+/**
+ * Returns the target vector for a particular number of bits of difficulty.
+ */
 function target(difficulty) {
   var target = new Uint8Array(config.dkLen).fill(255);
   for (var x=0; x<difficulty; x++) {
@@ -35,6 +29,7 @@ function target(difficulty) {
   return target;
 }
 
+// Inner function for measurement.
 function domeasure(iterations, callback, iteration, start) {
     if (iteration) {
       scrypt("x", "y" + Math.random() + "-iteration", config, function(key) {
@@ -68,6 +63,7 @@ function measure(iterations, callback) {
   });
 }
 
+// inner function for doing PoW.
 function dopow(h, target, callback, noncefn, smallest, i) {
   var nonce = noncefn(i);
   scrypt(h, nonce, config, function(key) {
@@ -84,6 +80,10 @@ function dopow(h, target, callback, noncefn, smallest, i) {
   });  
 }
 
+/**
+ * Compute an scrypt proof-of-work token for a particular text and target difficulty vector.
+ * Using the specified function for generating nonces (defaults to randomBytes(8)).
+ */
 function pow(h, target, noncefn, callback) {
   var smallest = new Uint8Array(config.dkLen).fill(255);
   var noncefn = noncefn || function(i) { return randomBytes(8); };
@@ -97,6 +97,10 @@ function pow(h, target, noncefn, callback) {
   });
 }
 
+
+/**
+ * Verify some previously computed scrypt proof-of-work token (nonce) for a particular text & target difficulty vector.
+ */
 function verify(h, nonce, target, callback) {
   return new Promise(function(resolve, reject) {
     scrypt(h, nonce, config, function(hash) {
