@@ -11,7 +11,7 @@
     "tape": "^4.9.1"
   },
   "scripts": {
-    "build": "browserify -s scrypt-hashcash -e ./ | minify > scrypt-hashcash.min.js",
+    "build": "browserify --exclude crypto -s scrypt-hashcash -e ./ | minify > scrypt-hashcash.min.js",
     "test": "tape test.js"
   }
 }
