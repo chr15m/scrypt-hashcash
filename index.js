@@ -49,15 +49,15 @@ function domeasure(iterations, callback, iteration, start) {
  * Measure how many hashes per second the current device is capable of.
  */
 function measure(iterations, callback) {
+  var start = start || new Date().getTime();
+  if (typeof(iterations) == "function") {
+    callback = iterations;
+    iterations = 100;
+  } else {
+    iterations = iterations || 100;
+  }
+  var iteration = iterations;
   return new Promise(function(resolve, reject) {
-    var start = start || new Date().getTime();
-    if (typeof(iterations) == "function") {
-      callback = iterations;
-      iterations = 100;
-    } else {
-      iterations = iterations || 100;
-    }
-    var iteration = iterations;
     domeasure(iterations, function(hashrate) {
       if (callback) {
         callback(hashrate);
