@@ -3,8 +3,13 @@
   "version": "0.0.1",
   "dependencies": {
     "scrypt-async": "^2.0.1"
-  }
+  },
   "devDependencies": {
+    "babel-minify": "^0.5.0",
+    "browserify": "^16.2.2",
     "tape": "^4.9.1"
+  },
+  "scripts": {
+    "build": "browserify -s scrypt-hashcash -e ./ | minify > scrypt-hashcash.min.js"
   }
 }
