@@ -102,7 +102,7 @@ test("default noncefn test", function(t) {
   t.plan(6);
 
   s.pow(material, s.target(4)).then(function(found) {
-    t.true(found.iterations > 0, "check iterations performed");
+    t.false(isNaN(found.iterations), "check iterations performed");
     t.equals(found.nonce.length, 8, "check nonce length");
     t.equals(found.hash.length, 8, "check hash length");
     t.equals(s.toHex(found.hash).substr(0,1), "0", "check first nibble is 0 (" + s.toHex(found.hash) + ")");
