@@ -68,10 +68,11 @@ function measure(iterations, callback) {
 }
 
 function dopow(h, target, callback, noncefn, smallest, i) {
-  scrypt(h, noncefn(i), config, function(key) {
+  var nonce = noncefn(i);
+  scrypt(h, nonce, config, function(key) {
       smallest = toHex(key) < toHex(smallest) ? key : smallest;
       if (toHex(smallest) <= toHex(target)) {
-        callback(smallest);
+        callback(smallest, nonce, i);
       } else {
         // avoid maximum call stack exceeded
         // by going async
