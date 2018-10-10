@@ -21,7 +21,7 @@ var config = {
  * @returns the number of bits of difficulty required.
  */
 function difficulty(hashes_per_time, average_time) {
-  return Math.max(0, Math.round(Math.log2(hashes_per_time * average_time) - 0.5));
+  return Math.max(0, Math.round(Math.log2(hashes_per_time * average_time) - 0.5)) || 0;
 }
 
 function target(difficulty) {
