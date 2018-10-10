@@ -74,3 +74,26 @@ test("check target vector", function(t) {
     t.deepEquals(Array.from(s.target(i)), vectors[i], "target vector " + i + " matches");
   }
 });
+
+var deterministicnoncefn = function(i) { return i.toString(); };
+
+test("basic pow with callback & deterministsic noncefn", function(t) {
+  t.plan(3);
+
+  s.pow("0:030626:adam@cypherspace.org", s.target(4), deterministicnoncefn, function(hash, nonce, i) {
+    t.deepEquals(hash, [ 15, 200, 215, 223, 6, 50, 198, 48 ], "found expected hash " + s.toHex(hash));
+    t.equals(i, 5, "found after expected iterations");
+    t.equals(nonce, "5", "found expected nonce");
+  });
+});
+
+test("basic pow with promise API & deterministic noncefn", function(t) {
+  t.plan(3);
+
+  s.pow("0:030626:adam@cypherspace.org", s.target(4), deterministicnoncefn).then(function(found) {
+    t.deepEquals(found.hash, [ 15, 200, 215, 223, 6, 50, 198, 48 ], "found expected hash " + s.toHex(found.hash));
+    t.equals(found.iterations, 5, "found after expected iterations");
+    t.equals(found.nonce, "5", "found expected nonce");
+  });
+});
+
