@@ -106,14 +106,14 @@ function verify(h, nonce, target, callback) {
     scrypt(h, nonce, config, function(hash) {
       if (hash.length == target.length && target.length == config.dkLen && toHex(hash) < toHex(target)) {
         if (callback) {
-          callback(true);
+          callback(true, hash);
         }
-        resolve(true);
+        resolve({"verified": true, "hash": hash});
       } else {
         if (callback) {
-          callback(false);
+          callback(false, hash);
         }
-        resolve(false);
+        resolve({"verified": false, "hash": hash});
       }
     });
   });

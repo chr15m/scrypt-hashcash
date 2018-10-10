@@ -118,11 +118,11 @@ test("verify pow", function(t) {
 
   s.pow(material, target, deterministicnoncefn).then(function(found) {
     s.verify(material, found.nonce, target).then(function(v) {
-      t.true(v, "verification passed");
+      t.true(v.verified, "verification passed with hash " + s.toHex(v.hash));
     });
 
     s.verify(material, "1", target).then(function(v) {
-      t.false(v, "verification known bad nonce fails");
+      t.false(v.verified, "verification known bad nonce fails with hash " + s.toHex(v.hash));
     });
   });
 });
