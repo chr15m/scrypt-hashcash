@@ -97,6 +97,21 @@ function pow(h, target, noncefn, callback) {
   });
 }
 
+function verify(h, nonce, target, callback) {
+  return new Promise(function(resolve, reject) {
+    scrypt(h, nonce, config, function(hash) {
+      if (hash.length == target.length && target.length == config.dkLen && toHex(hash) < toHex(target)) {
+        if (callback) {
+          callback(true);
+        }
+        resolve(true);
+      } else {
+        if (callback) {
+          callback(false);
+        }
+        resolve(false);
+      }
+    });
   });
 }
 
@@ -116,6 +131,7 @@ function fromHex(x) {
 module.exports = {
   config: config,
   pow: pow,
+  verify: verify,
   target: target,
   difficulty: difficulty,
   measure: measure,
