@@ -8,6 +8,10 @@ npm i scrypt-hashcash
 sh = require("scrypt-hashcash");
 ```
 
+```html
+<script src="script-hashcash.min.js"></script>
+```
+
 # API
 
 ### sh.pow(`text, target, [noncefunction, callback]`)
