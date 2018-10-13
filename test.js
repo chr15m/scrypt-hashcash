@@ -2,7 +2,7 @@ var s = require("./index.js");
 var test = require("tape");
 
 var deterministicnoncefn = function(i) { return i.toString(); };
-var material = "0:030626:adam@cypherspace.org";
+var text = "0:030626:adam@cypherspace.org";
 
 var difficulty_vectors = [
   [ 255, 255, 255, 255, 255, 255, 255, 255 ],
@@ -81,7 +81,7 @@ test("check target vector", function(t) {
 test("basic pow with callback & deterministsic noncefn", function(t) {
   t.plan(3);
 
-  s.pow(material, s.target(4), deterministicnoncefn, function(hash, nonce, i) {
+  s.pow(text, s.target(4), deterministicnoncefn, function(hash, nonce, i) {
     t.deepEquals(hash, [ 15, 200, 215, 223, 6, 50, 198, 48 ], "found expected hash " + s.toHex(hash));
     t.equals(i, 5, "found after expected iterations");
     t.equals(nonce, "5", "found expected nonce");
@@ -91,7 +91,7 @@ test("basic pow with callback & deterministsic noncefn", function(t) {
 test("basic pow with promise API & deterministic noncefn", function(t) {
   t.plan(3);
 
-  s.pow(material, s.target(4), deterministicnoncefn).then(function(found) {
+  s.pow(text, s.target(4), deterministicnoncefn).then(function(found) {
     t.deepEquals(found.hash, [ 15, 200, 215, 223, 6, 50, 198, 48 ], "found expected hash " + s.toHex(found.hash));
     t.equals(found.iterations, 5, "found after expected iterations");
     t.equals(found.nonce, "5", "found expected nonce");
@@ -101,7 +101,7 @@ test("basic pow with promise API & deterministic noncefn", function(t) {
 test("default noncefn test", function(t) {
   t.plan(6);
 
-  s.pow(material, s.target(4)).then(function(found) {
+  s.pow(text, s.target(4)).then(function(found) {
     t.false(isNaN(found.iterations), "check iterations performed");
     t.equals(found.nonce.length, 8, "check nonce length");
     t.equals(found.hash.length, 8, "check hash length");
@@ -116,12 +116,12 @@ test("verify pow", function(t) {
 
   var target = s.target(4);
 
-  s.pow(material, target, deterministicnoncefn).then(function(found) {
-    s.verify(material, found.nonce, target).then(function(v) {
+  s.pow(text, target, deterministicnoncefn).then(function(found) {
+    s.verify(text, found.nonce, target).then(function(v) {
       t.true(v.verified, "verification passed with hash " + s.toHex(v.hash));
     });
 
-    s.verify(material, "1", target).then(function(v) {
+    s.verify(text, "1", target).then(function(v) {
       t.false(v.verified, "verification known bad nonce fails with hash " + s.toHex(v.hash));
     });
   });

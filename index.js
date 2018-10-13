@@ -64,9 +64,9 @@ function measure(iterations, callback) {
 }
 
 // inner function for doing PoW.
-function dopow(h, target, callback, noncefn, smallest, i) {
+function dopow(text, target, callback, noncefn, smallest, i) {
   var nonce = noncefn(i);
-  scrypt(h, nonce, config, function(key) {
+  scrypt(text, nonce, config, function(key) {
       smallest = toHex(key) < toHex(smallest) ? key : smallest;
       if (toHex(smallest) <= toHex(target)) {
         callback(smallest, nonce, i);
@@ -74,7 +74,7 @@ function dopow(h, target, callback, noncefn, smallest, i) {
         // avoid maximum call stack exceeded
         // by going async
         setTimeout(function() {
-          dopow(h, target, callback, noncefn, smallest, i + 1);
+          dopow(text, target, callback, noncefn, smallest, i + 1);
         });
       }
   });  
@@ -84,11 +84,11 @@ function dopow(h, target, callback, noncefn, smallest, i) {
  * Compute an scrypt proof-of-work token for a particular text and target difficulty vector.
  * Using the specified function for generating nonces (defaults to randomBytes(8)).
  */
-function pow(h, target, noncefn, callback) {
+function pow(text, target, noncefn, callback) {
   var smallest = new Uint8Array(config.dkLen).fill(255);
   var noncefn = noncefn || function(i) { return randomBytes(8); };
   return new Promise(function(resolve, reject) {
-    dopow(h, target, function(hash, nonce, i) {
+    dopow(text, target, function(hash, nonce, i) {
       if (callback) {
         callback(hash, nonce, i);
       }
@@ -101,9 +101,9 @@ function pow(h, target, noncefn, callback) {
 /**
  * Verify some previously computed scrypt proof-of-work token (nonce) for a particular text & target difficulty vector.
  */
-function verify(h, nonce, target, callback) {
+function verify(text, nonce, target, callback) {
   return new Promise(function(resolve, reject) {
-    scrypt(h, nonce, config, function(hash) {
+    scrypt(text, nonce, config, function(hash) {
       if (hash.length == target.length && target.length == config.dkLen && toHex(hash) < toHex(target)) {
         if (callback) {
           callback(true, hash);
