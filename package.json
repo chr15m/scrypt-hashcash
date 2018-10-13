@@ -1,6 +1,23 @@
 {
   "name": "scrypt-hashcash",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "description": "Scrypt hashcash implementation for node & browsers.",
+  "author": "Chris McCormick <chris@mccormick.cx>",
+  "homepage": "https://github.com/chr15m/scrypt-hashcash",
+  "keywords": [
+    "crypto",
+    "Math",
+    "random",
+    "hash",
+    "scrypt",
+    "hashcash",
+    "Uint8Array"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chr15m/scrypt-hashcash.git",
+    "web": "https://github.com/chr15m/scrypt-hashcash"
+  },
   "dependencies": {
     "randombytes-shim": "0.0.3",
     "scrypt-async": "^2.0.1"
