@@ -17,11 +17,11 @@ function difficulty(hashes_per_time, average_time) {
 }
 
 /**
- * Returns the target vector for a particular number of bits of difficulty.
+ * Returns the target vector for a particular number of zero-bits of difficulty.
  */
-function target(difficulty) {
+function target(bits) {
   var target = new Uint8Array(config.dkLen).fill(255);
-  for (var x=0; x<difficulty; x++) {
+  for (var x=0; x<bits; x++) {
     var position = Math.floor(x / 8);
     var index = x % 8 + 1;
     target[Math.floor(x / 8)] &= (0xff >> index);
